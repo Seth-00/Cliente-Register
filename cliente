@@ -10,19 +10,23 @@ documentos_path = os.path.expanduser(f"C:\\Users\\{nome_usuario}\\Documents")
 file_path = os.path.join(documentos_path, f'Pagamentos do dia {data}.txt')
 total_path = os.path.join(documentos_path, f'Valores do dia {data}.txt')
 
-def salvar_totais(total_dinheiro, total_pix):
+def salvar_totais(total_dinheiro, total_pix, total_geral):
     with open(total_path, 'w') as arquivo:
         arquivo.write(f'Total em Dinheiro: {total_dinheiro:.2f}\n')
         arquivo.write(f'Total em Pix: {total_pix:.2f}\n')
+        arquivo.write(f'Total Geral: {total_geral:.2f}')
 
 def carregar_totais():
     if os.path.exists(total_path):
         with open(total_path, 'r') as arquivo:
             linhas = arquivo.readlines()
-            if len(linhas) >= 2:
+            if len(linhas) >= 3:
                 total_dinheiro = float(linhas[0].split(': ')[1])
                 total_pix = float(linhas[1].split(': ')[1])
+                total_geral = float(linhas[2].split(': ')[1])
+
                 return total_dinheiro, total_pix
+            
     return 0, 0
 
 total_dinheiro, total_pix = carregar_totais()
@@ -42,6 +46,7 @@ class Programa:
     def __init__(self):
         self.total_dinheiro = total_dinheiro
         self.total_pix = total_pix
+        self.total_geral = 0
 
     @staticmethod
     def limpar_tela():
@@ -349,6 +354,8 @@ Digite 1 ou 2: '''))
             elif metodo_pagamento == '(Pix)':
                 self.total_pix += pagamento + pagamento_adc
 
+            #self.total_geral += self.total_dinheiro + self.total_pix
+
             if pagamento_adc >= 1:
                 adicional = input('\nQual é o Adicional?: ').title()
             else:
@@ -365,7 +372,7 @@ Digite 1 ou 2: '''))
             with open(file_path, 'a') as arquivo:
                 arquivo.write(linha)
 
-            salvar_totais(self.total_dinheiro, self.total_pix)
+            salvar_totais(self.total_dinheiro, self.total_pix, self.calcular_total_geral())
 
             while True:
                 Programa.limpar_tela()
@@ -395,7 +402,7 @@ Digite 1 ou 2: '''))
                     sair = str(input('Voltar Sim/Não: ')).upper()
                     Programa.limpar_tela()
 
-                    if chato >= 3:
+                    if chato >= 2:
                         print('Ja te disse que não tem nada pra fazer aqui >:(')
                         sleep(2)
                         Programa.limpar_tela()
@@ -426,7 +433,7 @@ Digite 1 ou 2: '''))
 
 
     def fechar(self):
-        salvar_totais(self.total_dinheiro, self.total_pix)
+        salvar_totais(self.total_dinheiro, self.total_pix, self.total_geral)
         sleep(0.5)
         Programa.limpar_tela()
         print('Finalizando Programa...')
@@ -453,7 +460,6 @@ while True:
 [1] Registrar Pagamento De Clientes
 [2] Olhar Registros de Pagamento
 [3] Fechar Caixa
-[4] Jogo :)
 [0] Fechar Aplicativo
 
 Digite o número de uma das opções acima: '''))
